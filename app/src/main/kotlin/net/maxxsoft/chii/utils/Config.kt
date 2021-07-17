@@ -12,6 +12,8 @@ data class Configuration(
     val account: Long,
     val password: String,
     val watchedGroups: Array<Long>,
+    val enableAllHandlers: Boolean,
+    val enabledHandlers: Array<String>,
 // mutable configurations
 // TODO
 ) {
@@ -25,6 +27,8 @@ data class Configuration(
         Configuration(
             getInput("account").toLong(),
             getInput("password"),
+            arrayOf(),
+            true,
             arrayOf(),
         )
 
