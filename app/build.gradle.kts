@@ -32,6 +32,13 @@ dependencies {
   // Use the Kotlin JUnit integration.
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
 
+  // SLF4J.
+  implementation("org.slf4j:slf4j-api:1.7.30")
+  implementation("org.slf4j:slf4j-simple:1.7.30")
+
+  // Word 中文分词.
+  implementation("org.ansj:ansj_seg:5.1.1")
+
   // Mirai
   api("net.mamoe", "mirai-core-api", "2.6.7")
   runtimeOnly("net.mamoe", "mirai-core", "2.6.7")
