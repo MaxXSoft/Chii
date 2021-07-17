@@ -7,21 +7,21 @@ import kotlinx.serialization.json.*
 
 /** Configuration of Chii. */
 @Serializable
-public data class Configuration(
+data class Configuration(
     // immutable configurations
-    public val account: Long,
-    public val password: String,
-    public val watchedGroups: Array<Long>,
+    val account: Long,
+    val password: String,
+    val watchedGroups: Array<Long>,
 // mutable configurations
 // TODO
 ) {
-  public companion object {
+  companion object {
     /**
      * Get a default `Configuration` object.
      *
      * @return `Configuration` object
      */
-    public fun default() =
+    fun default() =
         Configuration(
             getInput("account").toLong(),
             getInput("password"),
@@ -34,7 +34,7 @@ public data class Configuration(
      * @param file the specific `File` object.
      * @return `Configuration` object.
      */
-    public fun fromFile(file: File) =
+    fun fromFile(file: File) =
         if (file.exists() && file.length() != 0L) {
           Json.decodeFromString<Configuration>(file.readText())
         } else {
@@ -50,5 +50,5 @@ public data class Configuration(
    *
    * @param file the specific `File` object.
    */
-  public fun saveToFile(file: File) = file.writeText(Json.encodeToString(this))
+  fun saveToFile(file: File) = file.writeText(Json.encodeToString(this))
 }
