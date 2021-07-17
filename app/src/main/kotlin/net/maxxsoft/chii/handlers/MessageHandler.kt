@@ -73,8 +73,9 @@ object RandomRepeatHandler : MessageHandler("random-repeat") {
 
   override suspend fun handle(event: GroupMessageEvent) {
     // repeat plain text message only
-    if (event.message.filterIsInstance<PlainText>().size + 1 != event.message.size) return
-    val msg = event.message.contentToString()
+    val texts = event.message.filterIsInstance<PlainText>().filter { !it.content.trim().isEmpty() }
+    if (texts.size > 1) return
+    val msg = texts.first().contentToString()
     // check if should repeat
     if (checkProb(PROB_REPEAT)) {
       // check if shoud deteriorate
