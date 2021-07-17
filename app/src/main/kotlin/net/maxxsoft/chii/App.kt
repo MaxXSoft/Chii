@@ -4,6 +4,7 @@ import java.io.File
 import kotlinx.coroutines.runBlocking
 import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.event.events.GroupMessageEvent
+import net.maxxsoft.chii.handlers.MessageHandler
 import net.maxxsoft.chii.utils.Configuration
 
 private interface App {
@@ -25,8 +26,13 @@ private object Main : App {
         // listen on group message event
         bot.eventChannel.subscribeAlways<GroupMessageEvent> {
           // check if is watched group
-          if (this.group.id in CONF.watchedGroups) {
-            println(sender.id)
+          if (group.id in CONF.watchedGroups) {
+            // handle with message handlers
+            if (CONF.enableAllHandlers) {
+              MessageHandler.handleAll(this)
+            } else {
+              MessageHandler.handleSome(this, CONF.enabledHandlers)
+            }
           }
         }
       }
@@ -36,6 +42,10 @@ private object Main : App {
     CONF.saveToFile(File(CONF_FILE))
     println("configuration saved")
   }
+}
+
+private object Misc : App {
+  override fun run() {}
 }
 
 fun main() {
