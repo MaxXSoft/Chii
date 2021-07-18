@@ -39,6 +39,9 @@ dependencies {
   // Word 中文分词.
   implementation("org.ansj:ansj_seg:5.1.1")
 
+  // SQLite JDBC.
+  implementation("org.xerial:sqlite-jdbc:3.34.0")
+
   // Mirai
   api("net.mamoe", "mirai-core-api", "2.6.7")
   runtimeOnly("net.mamoe", "mirai-core", "2.6.7")
