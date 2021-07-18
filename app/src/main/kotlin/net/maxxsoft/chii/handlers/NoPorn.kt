@@ -40,6 +40,8 @@ object NoPornHandler :
     // fetch setu from lolicon API
     runCatching { event.subject.sendImage(getRandom()!!) }.onFailure {
       event.subject.sendMessage("本来想发图的但没发出去🤦‍♂️算了（")
+      log(it.message ?: "")
+      log(it.stackTraceToString())
     }
     return true
   }
