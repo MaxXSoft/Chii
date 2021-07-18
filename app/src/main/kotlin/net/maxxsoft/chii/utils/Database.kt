@@ -65,7 +65,7 @@ class Database {
     CREATE TABLE IF NOT EXISTS noporn_records (
       id                  INTEGER PRIMARY KEY NOT NULL,
       group_id            INTEGER NOT NULL,
-      last_check_in_time  INTEGER NOT NULL,
+      last_checkin_time   INTEGER NOT NULL,
       lasting_days        INTEGER NOT NULL
     );"""
     )
