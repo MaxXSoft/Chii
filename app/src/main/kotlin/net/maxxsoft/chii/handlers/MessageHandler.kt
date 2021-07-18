@@ -17,8 +17,9 @@ abstract class MessageHandler(val id: String, val description: String) {
     // all instances of `MessageHandler`
     private val INSTANCES =
         listOf(
-            RandomRepeatHandler,
             AtCommandHandler,
+            NoPornHandler,
+            RandomRepeatHandler,
         )
             .map { Pair(it.id, it) }
 
