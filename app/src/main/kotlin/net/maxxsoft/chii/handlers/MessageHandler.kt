@@ -1,10 +1,9 @@
 package net.maxxsoft.chii.handlers
 
-import kotlin.reflect.full.isSubclassOf
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import org.slf4j.LoggerFactory
 
-sealed class MessageHandler(val id: String) {
+abstract class MessageHandler(val id: String) {
   companion object {
     // logger
     @JvmStatic
@@ -13,11 +12,9 @@ sealed class MessageHandler(val id: String) {
 
     // all instances of `MessageHandler`
     private val INSTANCES =
-        MessageHandler::class
-            .sealedSubclasses
-            .filter { it.isSubclassOf(MessageHandler::class) }
-            .map { it.objectInstance }
-            .filterIsInstance<MessageHandler>()
+        listOf(
+            RandomRepeatHandler,
+        )
             .associateBy { it.id }
 
     /**
