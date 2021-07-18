@@ -63,10 +63,11 @@ class Database {
     executeUpdate(
         """
     CREATE TABLE IF NOT EXISTS noporn_records (
-      id                  INTEGER PRIMARY KEY NOT NULL,
+      id                  INTEGER NOT NULL,
       group_id            INTEGER NOT NULL,
       last_checkin_time   INTEGER NOT NULL,
-      lasting_days        INTEGER NOT NULL
+      lasting_days        INTEGER NOT NULL,
+      PRIMARY KEY (id, group_id)
     );"""
     )
   }
