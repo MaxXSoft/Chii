@@ -9,12 +9,14 @@ import org.ansj.splitWord.analysis.ToAnalysis
 object RandomRepeatHandler :
     MessageHandler(
         "random-repeat",
-        "全自动劣质复读机",
+        "全自动劣质复读机，5%概率自动复读，100%被动复读。自动复读时劣化概率50%，被动时80%",
     ) {
   // probability of repetition
-  private val PROB_REPEAT = 0.1
-  // probability of deterioration
+  private val PROB_REPEAT = 0.05
+  // probability of deterioration (self-repeating)
   private val PROB_DETER = 0.5
+  // probability of deterioration (follow)
+  private val PROB_DETER_FOLLOW = 0.8
   // Nouns.
   private val NOUNS = setOf("n", "l", "i", "nr", "ns", "nt", "nx", "nz", "en")
   // Threshold of nouns count.
@@ -31,21 +33,18 @@ object RandomRepeatHandler :
     // check if should repeat
     if (checkLastMsg(msg)) {
       log("followed by other members")
-      // always deteriorate if others are also repeating
-      event.subject.sendMessage(chaosString(msg))
+      event.subject.sendMessage(if (checkProb(PROB_DETER_FOLLOW)) chaosString(msg) else msg)
       return true
     } else if (checkProb(PROB_REPEAT)) {
       log("self-repeating")
-      // check if shoud deteriorate
-      if (checkProb(PROB_DETER)) {
-        event.subject.sendMessage(chaosString(msg))
-      } else {
-        // just repeat
-        event.subject.sendMessage(msg)
-      }
+      event.subject.sendMessage(if (checkProb(PROB_DETER)) chaosString(msg) else msg)
       return true
     }
     return false
+  }
+
+  override fun reset() {
+    lastMessage = ""
   }
 
   /**
