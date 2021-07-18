@@ -6,7 +6,11 @@ import net.mamoe.mirai.message.data.PlainText
 import org.ansj.splitWord.analysis.ToAnalysis
 
 /** Random repetition of group members' messages. */
-object RandomRepeatHandler : MessageHandler("random-repeat") {
+object RandomRepeatHandler :
+    MessageHandler(
+        "random-repeat",
+        "全自动劣质复读机",
+    ) {
   // probability of repetition
   private val PROB_REPEAT = 0.1
   // probability of deterioration
@@ -19,16 +23,17 @@ object RandomRepeatHandler : MessageHandler("random-repeat") {
   // Last message.
   private var lastMessage = ""
 
-  override suspend fun handle(event: GroupMessageEvent) {
+  override suspend fun handle(event: GroupMessageEvent): Boolean {
     // repeat plain text message only
     val texts = event.message.filterIsInstance<PlainText>().filter { !it.content.trim().isEmpty() }
-    if (texts.size > 1) return
+    if (texts.size > 1) return false
     val msg = texts.first().contentToString()
     // check if should repeat
     if (checkLastMsg(msg)) {
       log("followed by other members")
       // always deteriorate if others are also repeating
       event.subject.sendMessage(chaosString(msg))
+      return true
     } else if (checkProb(PROB_REPEAT)) {
       log("self-repeating")
       // check if shoud deteriorate
@@ -38,7 +43,9 @@ object RandomRepeatHandler : MessageHandler("random-repeat") {
         // just repeat
         event.subject.sendMessage(msg)
       }
+      return true
     }
+    return false
   }
 
   /**
