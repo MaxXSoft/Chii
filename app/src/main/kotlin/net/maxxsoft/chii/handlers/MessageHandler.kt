@@ -4,7 +4,7 @@ import kotlinx.coroutines.channels.Channel
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import org.slf4j.LoggerFactory
 
-abstract class MessageHandler(val id: String) {
+abstract class MessageHandler(val id: String, val description: String) {
   companion object {
     // logger
     @JvmStatic
@@ -18,8 +18,9 @@ abstract class MessageHandler(val id: String) {
     private val INSTANCES =
         listOf(
             RandomRepeatHandler,
+            AtCommandHandler,
         )
-            .associateBy { it.id }
+            .map { Pair(it.id, it) }
 
     /**
      * Handle by using all instances.
@@ -27,7 +28,7 @@ abstract class MessageHandler(val id: String) {
      * @param event group message event.
      */
     suspend fun handleAll(event: GroupMessageEvent) {
-      INSTANCES.forEach { (_, v) -> v.handle(event) }
+      INSTANCES.forEach f@{ (_, v) -> if (v.handle(event)) return@f }
     }
 
     /**
@@ -37,7 +38,7 @@ abstract class MessageHandler(val id: String) {
      */
     suspend fun handleSome(event: GroupMessageEvent, ids: Array<String>) {
       val idSet = ids.toSet()
-      INSTANCES.forEach { (k, v) -> if (k in idSet) v.handle(event) }
+      INSTANCES.forEach f@{ (k, v) -> if (k in idSet && v.handle(event)) return@f }
     }
 
     /** Poll message from logger. */
@@ -52,6 +53,14 @@ abstract class MessageHandler(val id: String) {
     fun closeLoggerChannel() {
       loggerChannel.close()
     }
+
+    /**
+     * Get help message of all message handlers.
+     *
+     * @return help message (`String`)
+     */
+    fun getHelpMessage() =
+        INSTANCES.joinToString(separator = "\n") { (_, v) -> "${v.id}: ${v.description}" }
   }
 
   /**
@@ -67,6 +76,7 @@ abstract class MessageHandler(val id: String) {
    * Handle group message event.
    *
    * @param event group message event.
+   * @return returns `true` if the message has already been handled
    */
-  abstract suspend fun handle(event: GroupMessageEvent)
+  abstract suspend fun handle(event: GroupMessageEvent): Boolean
 }
