@@ -29,7 +29,14 @@ abstract class MessageHandler(val id: String, val description: String) {
      * @param event group message event.
      */
     suspend fun handleAll(event: GroupMessageEvent) {
-      INSTANCES.forEach f@{ (_, v) -> if (v.handle(event)) return@f }
+      var resetFlag = false
+      INSTANCES.forEach { (_, v) ->
+        if (!resetFlag) {
+          if (v.handle(event)) resetFlag = true
+        } else {
+          v.reset()
+        }
+      }
     }
 
     /**
@@ -39,7 +46,14 @@ abstract class MessageHandler(val id: String, val description: String) {
      */
     suspend fun handleSome(event: GroupMessageEvent, ids: Array<String>) {
       val idSet = ids.toSet()
-      INSTANCES.forEach f@{ (k, v) -> if (k in idSet && v.handle(event)) return@f }
+      var resetFlag = false
+      INSTANCES.forEach { (k, v) ->
+        if (!resetFlag) {
+          if (k in idSet && v.handle(event)) resetFlag = true
+        } else {
+          v.reset()
+        }
+      }
     }
 
     /** Poll message from logger. */
@@ -80,4 +94,7 @@ abstract class MessageHandler(val id: String, val description: String) {
    * @return returns `true` if the message has already been handled
    */
   abstract suspend fun handle(event: GroupMessageEvent): Boolean
+
+  /** Reset internal state. */
+  open fun reset() {}
 }
