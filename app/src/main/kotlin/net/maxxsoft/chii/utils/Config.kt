@@ -13,6 +13,7 @@ private data class Configuration(
     val watchedGroups: Array<Long>,
     val enableAllHandlers: Boolean,
     val enabledHandlers: Array<String>,
+    val masterId: Long,
 ) {
   companion object {
     /**
@@ -32,6 +33,7 @@ private data class Configuration(
               arrayOf(),
               true,
               arrayOf(),
+              getInput("id of master").toLong()
           )
         }
 
@@ -47,6 +49,7 @@ object Config {
   val watchedGroups: Array<Long>
   val enableAllHandlers: Boolean
   val enabledHandlers: Array<String>
+  val masterId: Long
 
   init {
     val conf = Configuration.fromFile(File("config.json"))
@@ -55,5 +58,6 @@ object Config {
     watchedGroups = conf.watchedGroups
     enableAllHandlers = conf.enableAllHandlers
     enabledHandlers = conf.enabledHandlers
+    masterId = conf.masterId
   }
 }
