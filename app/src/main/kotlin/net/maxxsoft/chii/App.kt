@@ -1,6 +1,8 @@
 package net.maxxsoft.chii
 
 import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.event.events.GroupMessageEvent
@@ -35,9 +37,13 @@ private object Main : App {
             }
           }
         }
+        // poll logs
+        launch(Dispatchers.IO) { MessageHandler.pollLogger() }
       }
 
   override fun quit() {
+    // close logger channel
+    MessageHandler.closeLoggerChannel()
     // save configuration
     CONF.saveToFile(File(CONF_FILE))
     println("configuration saved")
