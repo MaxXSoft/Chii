@@ -16,20 +16,24 @@ object RandomRepeatHandler : MessageHandler("random-repeat") {
   // Threshold of nouns count.
   private val NOUNS_THRESH = 4
 
+  // Last message.
+  private var lastMessage = ""
+
   override suspend fun handle(event: GroupMessageEvent) {
     // repeat plain text message only
     val texts = event.message.filterIsInstance<PlainText>().filter { !it.content.trim().isEmpty() }
     if (texts.size > 1) return
     val msg = texts.first().contentToString()
     // check if should repeat
-    if (checkProb(PROB_REPEAT)) {
+    if (checkLastMsg(msg)) {
+      log("followed by other members")
+      // always deteriorate if others are also repeating
+      event.subject.sendMessage(chaosString(msg))
+    } else if (checkProb(PROB_REPEAT)) {
+      log("self-repeating")
       // check if shoud deteriorate
       if (checkProb(PROB_DETER)) {
-        val words = ToAnalysis.parse(msg).map { Pair(it.name, it.natureStr) }
-        val nounsCount = words.filter { it.second in NOUNS }.size
-        val newWords = if (nounsCount < NOUNS_THRESH) chaos(words) else chaos(words, NOUNS)
-        val newMsg = newWords.map { it.first }.joinToString(separator = "")
-        event.subject.sendMessage(newMsg)
+        event.subject.sendMessage(chaosString(msg))
       } else {
         // just repeat
         event.subject.sendMessage(msg)
@@ -42,17 +46,14 @@ object RandomRepeatHandler : MessageHandler("random-repeat") {
    *
    * @param prob probability.
    */
-  private fun checkProb(prob: Double): Boolean {
-    val p = Random.nextDouble(0.0, 1.0)
-    log("$p")
-    return p < prob
-  }
+  private fun checkProb(prob: Double) = Random.nextDouble(0.0, 1.0) < prob
 
   /**
    * Shuffle word list by nature of word.
    *
    * @param words list of (word, nature).
    * @param natureSet only shuffle words with natures in `natureSet`.
+   * @return a new word list.
    */
   private fun chaos(
       words: List<Pair<String, String>>,
@@ -65,4 +66,34 @@ object RandomRepeatHandler : MessageHandler("random-repeat") {
           .zip(words.filter { it.second in natureSet }.shuffled())
           .toMap()
           .let { m -> words.mapIndexed { i, v -> m[i] ?: v } }
+
+  /**
+   * Perform `chaos` operation on a specific string.
+   *
+   * @param message input string.
+   * @return a processed string
+   */
+  private fun chaosString(message: String): String {
+    val words = ToAnalysis.parse(message).map { Pair(it.name, it.natureStr) }
+    val nounsCount = words.filter { it.second in NOUNS }.size
+    val newWords = if (nounsCount < NOUNS_THRESH) chaos(words) else chaos(words, NOUNS)
+    return newWords.map { it.first }.joinToString(separator = "")
+  }
+
+  /**
+   * Check if the current message is same as the last one, and update `lastMessage`.
+   *
+   * @param message the current message.
+   * @return `true` if same.
+   */
+  private fun checkLastMsg(message: String): Boolean {
+    if (message == lastMessage) {
+      // prevent further repetition
+      lastMessage = ""
+      return true
+    } else {
+      lastMessage = message
+      return false
+    }
+  }
 }
