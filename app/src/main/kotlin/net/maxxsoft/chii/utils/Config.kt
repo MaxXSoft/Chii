@@ -7,31 +7,14 @@ import kotlinx.serialization.json.*
 
 /** Configuration of Chii. */
 @Serializable
-data class Configuration(
-    // immutable configurations
+private data class Configuration(
     val account: Long,
     val password: String,
     val watchedGroups: Array<Long>,
     val enableAllHandlers: Boolean,
     val enabledHandlers: Array<String>,
-// mutable configurations
-// TODO
 ) {
   companion object {
-    /**
-     * Get a default `Configuration` object.
-     *
-     * @return `Configuration` object
-     */
-    fun default() =
-        Configuration(
-            getInput("account").toLong(),
-            getInput("password"),
-            arrayOf(),
-            true,
-            arrayOf(),
-        )
-
     /**
      * Load Chii configuration from the specific file.
      *
@@ -42,17 +25,35 @@ data class Configuration(
         if (file.exists() && file.length() != 0L) {
           Json.decodeFromString<Configuration>(file.readText())
         } else {
-          default()
+          // default configuration
+          Configuration(
+              getInput("account").toLong(),
+              getInput("password"),
+              arrayOf(),
+              true,
+              arrayOf(),
+          )
         }
 
     private fun getInput(prompt: String? = null) =
         prompt?.let { print("$it: ") }.let { readLine() ?: "" }
   }
+}
 
-  /**
-   * Save the current Chii configuration to the specific file.
-   *
-   * @param file the specific `File` object.
-   */
-  fun saveToFile(file: File) = file.writeText(Json.encodeToString(this))
+/** Global config. */
+object Config {
+  val account: Long
+  val password: String
+  val watchedGroups: Array<Long>
+  val enableAllHandlers: Boolean
+  val enabledHandlers: Array<String>
+
+  init {
+    val conf = Configuration.fromFile(File("config.json"))
+    account = conf.account
+    password = conf.password
+    watchedGroups = conf.watchedGroups
+    enableAllHandlers = conf.enableAllHandlers
+    enabledHandlers = conf.enabledHandlers
+  }
 }
