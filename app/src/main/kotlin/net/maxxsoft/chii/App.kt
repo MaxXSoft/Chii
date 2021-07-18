@@ -1,13 +1,12 @@
 package net.maxxsoft.chii
 
-import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.maxxsoft.chii.handlers.MessageHandler
-import net.maxxsoft.chii.utils.Configuration
+import net.maxxsoft.chii.utils.Config
 
 private interface App {
   fun run()
@@ -15,25 +14,20 @@ private interface App {
 }
 
 private object Main : App {
-  // configuration file
-  private val CONF_FILE = "config.json"
-  // read configuration from file
-  private val CONF = Configuration.fromFile(File(CONF_FILE))
-
   override fun run() =
       runBlocking<Unit> {
         // create bot & login
-        val bot = BotFactory.newBot(CONF.account, CONF.password) { fileBasedDeviceInfo() }
+        val bot = BotFactory.newBot(Config.account, Config.password) { fileBasedDeviceInfo() }
         bot.login()
         // listen on group message event
         bot.eventChannel.subscribeAlways<GroupMessageEvent> {
           // check if is watched group
-          if (group.id in CONF.watchedGroups) {
+          if (group.id in Config.watchedGroups) {
             // handle with message handlers
-            if (CONF.enableAllHandlers) {
+            if (Config.enableAllHandlers) {
               MessageHandler.handleAll(this)
             } else {
-              MessageHandler.handleSome(this, CONF.enabledHandlers)
+              MessageHandler.handleSome(this, Config.enabledHandlers)
             }
           }
         }
@@ -44,9 +38,6 @@ private object Main : App {
   override fun quit() {
     // close logger channel
     MessageHandler.closeLoggerChannel()
-    // save configuration
-    CONF.saveToFile(File(CONF_FILE))
-    println("configuration saved")
   }
 }
 
