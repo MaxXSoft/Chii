@@ -26,7 +26,7 @@ object RandomRepeatHandler :
   override suspend fun handle(event: GroupMessageEvent): Boolean {
     // repeat plain text message only
     val texts = event.message.filterIsInstance<PlainText>().filter { !it.content.trim().isEmpty() }
-    if (texts.size > 1) return false
+    if (texts.isEmpty() || texts.size > 1) return false
     val msg = texts.first().contentToString()
     // check if should repeat
     if (checkLastMsg(msg)) {
