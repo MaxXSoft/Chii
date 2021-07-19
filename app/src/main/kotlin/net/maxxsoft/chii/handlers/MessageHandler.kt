@@ -19,6 +19,7 @@ abstract class MessageHandler(val id: String, val description: String) {
         listOf(
             AtCommandHandler,
             NoPornHandler,
+            PenggenHandler,
             RandomRepeatHandler,
         )
             .map { Pair(it.id, it) }
