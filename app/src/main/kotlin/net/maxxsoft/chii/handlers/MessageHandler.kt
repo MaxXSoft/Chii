@@ -74,8 +74,10 @@ abstract class MessageHandler(val id: String, val description: String) {
      *
      * @return help message (`String`)
      */
-    fun getHelpMessage() =
-        INSTANCES.joinToString(separator = "\n") { (_, v) -> "${v.id}: ${v.description}" }
+    fun getHelpMessage(linePrefix: String = "") =
+        INSTANCES.joinToString(separator = "\n") { (_, v) ->
+          "$linePrefix${v.id}: ${v.description}"
+        }
   }
 
   /**
