@@ -14,4 +14,4 @@ $ gradle run
 
 ## License
 
-Copyright (C) 2010-2021 MaxXing. License GPLv3.
+Copyright (C) 2010-2021 MaxXing. License AGPLv3.
