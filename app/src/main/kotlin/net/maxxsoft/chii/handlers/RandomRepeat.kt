@@ -92,12 +92,12 @@ object RandomRepeatHandler :
    * @return `true` if same.
    */
   private fun checkLastMsg(groupId: Long, message: String): Boolean {
-    if (lastMessage.get(groupId)?.let { message == it } ?: false) {
+    if (lastMessage[groupId]?.let { message == it } ?: false) {
       // prevent further repetition
       lastMessage.remove(groupId)
       return true
     } else {
-      lastMessage.put(groupId, message)
+      lastMessage[groupId] = message
       return false
     }
   }
