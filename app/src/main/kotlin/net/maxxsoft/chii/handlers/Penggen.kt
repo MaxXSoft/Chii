@@ -30,6 +30,7 @@ object PenggenHandler :
     if (atMessage == null || atMessage.contentToString().indexOf("@${Config.account}") != 0) {
       return false
     }
+    log("penggen-ing...")
     // select a random Penggen text and reply
     event.subject.sendMessage(event.message.quote() + getPenggenText())
     return true
