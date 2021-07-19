@@ -61,7 +61,8 @@ object AtCommandHandler :
         commandHandlers
             .map { (_, v) -> "$linePrefix${v.abbr}: ${v.help}" }
             .joinToString(separator = "\n")
-    val msgHelp = MessageHandler.getHelpMessage(Config.enabledHandlers, linePrefix)
+    val msgHelp =
+        MessageHandler.getHelpMessage(Config.enableAllHandlers, Config.enabledHandlers, linePrefix)
     val msg = "${master}${status}\n\n🚩命令说明: \n$commandHelp\n\n💬已启用的消息处理器: \n$msgHelp"
     event.subject.sendMessage(event.message.quote() + msg)
   }

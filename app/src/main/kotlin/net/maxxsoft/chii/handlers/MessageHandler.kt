@@ -74,11 +74,13 @@ abstract class MessageHandler(val id: String, val description: String) {
      *
      * @return help message (`String`)
      */
-    fun getHelpMessage(enabledHandlers: Set<String>, linePrefix: String = "") =
-        INSTANCES.filter { (_, v) -> v.id in enabledHandlers }.joinToString(separator = "\n") {
-            (_, v) ->
-          "$linePrefix${v.id}: ${v.description}"
-        }
+    fun getHelpMessage(
+        getAll: Boolean = true,
+        enabledHandlers: Set<String> = setOf(),
+        linePrefix: String = ""
+    ) =
+        (if (getAll) INSTANCES else INSTANCES.filter { (_, v) -> v.id in enabledHandlers })
+            .joinToString(separator = "\n") { (_, v) -> "$linePrefix${v.id}: ${v.description}" }
   }
 
   /**
