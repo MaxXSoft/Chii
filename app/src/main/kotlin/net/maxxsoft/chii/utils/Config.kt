@@ -90,9 +90,9 @@ object Config {
   fun getRunningTime(): String {
     val now = LocalDateTime.now()
     val days = ChronoUnit.DAYS.between(startTime, now)
-    val hours = ChronoUnit.HOURS.between(startTime, now)
-    val mins = ChronoUnit.MINUTES.between(startTime, now)
-    val secs = ChronoUnit.SECONDS.between(startTime, now)
+    val hours = ChronoUnit.HOURS.between(startTime, now) % 24
+    val mins = ChronoUnit.MINUTES.between(startTime, now) % 60
+    val secs = ChronoUnit.SECONDS.between(startTime, now) % 60
     return "${days}天${hours}小时${mins}分${secs}秒"
   }
 }
