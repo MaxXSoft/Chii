@@ -44,12 +44,11 @@ abstract class MessageHandler(val id: String, val description: String) {
      *
      * @param event group message event.
      */
-    suspend fun handleSome(event: GroupMessageEvent, ids: Array<String>) {
-      val idSet = ids.toSet()
+    suspend fun handleSome(event: GroupMessageEvent, ids: Set<String>) {
       var resetFlag = false
       INSTANCES.forEach { (k, v) ->
         if (!resetFlag) {
-          if (k in idSet && v.handle(event)) resetFlag = true
+          if (k in ids && v.handle(event)) resetFlag = true
         } else {
           v.reset()
         }
@@ -74,8 +73,9 @@ abstract class MessageHandler(val id: String, val description: String) {
      *
      * @return help message (`String`)
      */
-    fun getHelpMessage(linePrefix: String = "") =
-        INSTANCES.joinToString(separator = "\n") { (_, v) ->
+    fun getHelpMessage(enabledHandlers: Set<String>, linePrefix: String = "") =
+        INSTANCES.filter { (_, v) -> v.id in enabledHandlers }.joinToString(separator = "\n") {
+            (_, v) ->
           "$linePrefix${v.id}: ${v.description}"
         }
   }
