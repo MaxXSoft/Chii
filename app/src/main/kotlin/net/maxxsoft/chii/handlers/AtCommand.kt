@@ -55,13 +55,14 @@ object AtCommandHandler :
   @Suppress("UNUSED_PARAMETER")
   private suspend fun handleHelp(event: GroupMessageEvent, args: List<String>) {
     val master = if (event.sender.id == Config.masterId) "恭迎我至高无上的主人${event.senderName}！\n" else ""
+    val status = "已运行${Config.getRunningTime()}"
     val linePrefix = "  🔘"
     val commandHelp =
         commandHandlers
             .map { (_, v) -> "$linePrefix${v.abbr}: ${v.help}" }
             .joinToString(separator = "\n")
     val msgHelp = MessageHandler.getHelpMessage(linePrefix)
-    val msg = "${master}🚩命令说明: \n$commandHelp\n\n💬已启用的消息处理器: \n$msgHelp"
+    val msg = "${master}${status}\n\n🚩命令说明: \n$commandHelp\n\n💬已启用的消息处理器: \n$msgHelp"
     event.subject.sendMessage(event.message.quote() + msg)
   }
 

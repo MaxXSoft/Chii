@@ -16,6 +16,8 @@ private interface App {
 private object Main : App {
   override fun run() =
       runBlocking<Unit> {
+        // update start time
+        Config.updateStartTime()
         // create bot & login
         val bot = BotFactory.newBot(Config.account, Config.password) { fileBasedDeviceInfo() }
         bot.login()
