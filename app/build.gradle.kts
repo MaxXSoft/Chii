@@ -9,10 +9,13 @@ plugins {
   application
 }
 
+group = "net.maxxsoft"
+version = "0.0.2"
+
 repositories {
   maven(url = "https://mirrors.huaweicloud.com/repository/maven")
 
-// Use Maven Central for resolving dependencies.
+  // Use Maven Central for resolving dependencies.
   mavenCentral()
 }
 
