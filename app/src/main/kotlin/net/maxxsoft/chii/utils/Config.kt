@@ -14,7 +14,7 @@ private data class Configuration(
     val password: String,
     val watchedGroups: Array<Long>,
     val enableAllHandlers: Boolean,
-    val enabledHandlers: Array<String>,
+    val enabledHandlers: Set<String>,
     val masterId: Long,
 ) {
   companion object {
@@ -35,7 +35,7 @@ private data class Configuration(
                   getInput("password"),
                   arrayOf(),
                   true,
-                  arrayOf(),
+                  setOf(),
                   getInput("id of master").toLong()
               )
           // save changes
@@ -61,7 +61,7 @@ object Config {
     private set
   var enableAllHandlers: Boolean = true
     private set
-  var enabledHandlers: Array<String> = arrayOf()
+  var enabledHandlers: Set<String> = setOf()
     private set
   var masterId: Long = 0L
     private set
