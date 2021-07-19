@@ -26,15 +26,19 @@ private data class Configuration(
         if (file.exists() && file.length() != 0L) {
           Json.decodeFromString<Configuration>(file.readText())
         } else {
-          // default configuration
-          Configuration(
-              getInput("account").toLong(),
-              getInput("password"),
-              arrayOf(),
-              true,
-              arrayOf(),
-              getInput("id of master").toLong()
-          )
+          // generate default configuration
+          val default =
+              Configuration(
+                  getInput("account").toLong(),
+                  getInput("password"),
+                  arrayOf(),
+                  true,
+                  arrayOf(),
+                  getInput("id of master").toLong()
+              )
+          // save changes
+          file.writeText(Json.encodeToString(default))
+          default
         }
 
     private fun getInput(prompt: String? = null) =
@@ -44,14 +48,25 @@ private data class Configuration(
 
 /** Global config. */
 object Config {
-  val account: Long
-  val password: String
-  val watchedGroups: Array<Long>
-  val enableAllHandlers: Boolean
-  val enabledHandlers: Array<String>
-  val masterId: Long
+  var account: Long = 0
+    private set
+  var password: String = ""
+    private set
+  var watchedGroups: Array<Long> = arrayOf()
+    private set
+  var enableAllHandlers: Boolean = true
+    private set
+  var enabledHandlers: Array<String> = arrayOf()
+    private set
+  var masterId: Long = 0
+    private set
 
   init {
+    reload()
+  }
+
+  /** Reload all configurations. */
+  fun reload() {
     val conf = Configuration.fromFile(File("config.json"))
     account = conf.account
     password = conf.password
