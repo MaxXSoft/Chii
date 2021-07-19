@@ -19,7 +19,9 @@ object RandomRepeatHandler :
   private val PROB_DETER_FOLLOW = 0.8
   // Nouns.
   private val NOUNS = setOf("n", "l", "i", "nr", "ns", "nt", "nx", "nz", "en")
-  // Threshold of nouns count.
+  // Verbs.
+  private val VERBS = setOf("v", "vg", "vd", "vn")
+  // Nouns count threshold of nouns-only mode.
   private val NOUNS_THRESH = 4
 
   // Last message.
@@ -61,11 +63,7 @@ object RandomRepeatHandler :
    * @param natureSet only shuffle words with natures in `natureSet`.
    * @return a new word list.
    */
-  private fun chaos(
-      words: List<Pair<String, String>>,
-      natureSet: Set<String> =
-          setOf("v", "n", "l", "i", "ng", "nr", "ns", "nt", "nx", "nz", "en", "vg", "vd", "vn")
-  ) =
+  private fun chaos(words: List<Pair<String, String>>, natureSet: Set<String>) =
       words
           .mapIndexed { i, v -> if (v.second in natureSet) i else -1 }
           .filter { it >= 0 }
@@ -82,7 +80,8 @@ object RandomRepeatHandler :
   private fun chaosString(message: String): String {
     val words = ToAnalysis.parse(message).map { Pair(it.name, it.natureStr) }
     val nounsCount = words.filter { it.second in NOUNS }.size
-    val newWords = if (nounsCount < NOUNS_THRESH) chaos(words) else chaos(words, NOUNS)
+    val nounsOnly = chaos(words, NOUNS)
+    val newWords = if (nounsCount < NOUNS_THRESH) chaos(nounsOnly, VERBS) else nounsOnly
     return newWords.map { it.first }.joinToString(separator = "")
   }
 
