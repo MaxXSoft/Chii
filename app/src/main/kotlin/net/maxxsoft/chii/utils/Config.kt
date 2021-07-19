@@ -1,6 +1,8 @@
 package net.maxxsoft.chii.utils
 
 import java.io.File
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import kotlin.arrayOf
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
@@ -48,7 +50,10 @@ private data class Configuration(
 
 /** Global config. */
 object Config {
-  var account: Long = 0
+  private var startTime = LocalDateTime.now()
+
+  /** Configurations from file. */
+  var account: Long = 0L
     private set
   var password: String = ""
     private set
@@ -58,7 +63,7 @@ object Config {
     private set
   var enabledHandlers: Array<String> = arrayOf()
     private set
-  var masterId: Long = 0
+  var masterId: Long = 0L
     private set
 
   init {
@@ -74,5 +79,20 @@ object Config {
     enableAllHandlers = conf.enableAllHandlers
     enabledHandlers = conf.enabledHandlers
     masterId = conf.masterId
+  }
+
+  /** Update start time. */
+  fun updateStartTime() {
+    startTime = LocalDateTime.now()
+  }
+
+  /** Get running time. */
+  fun getRunningTime(): String {
+    val now = LocalDateTime.now()
+    val days = ChronoUnit.DAYS.between(startTime, now)
+    val hours = ChronoUnit.HOURS.between(startTime, now)
+    val mins = ChronoUnit.MINUTES.between(startTime, now)
+    val secs = ChronoUnit.SECONDS.between(startTime, now)
+    return "${days}天${hours}小时${mins}分${secs}秒"
   }
 }
