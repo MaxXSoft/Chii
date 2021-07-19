@@ -25,7 +25,7 @@ object RandomRepeatHandler :
   private val NOUNS_THRESH = 4
 
   // Last message.
-  private var lastMessage = ""
+  private var lastMessage = HashMap<Long, String>()
 
   override suspend fun handle(event: GroupMessageEvent): Boolean {
     // repeat plain text message only
@@ -33,7 +33,7 @@ object RandomRepeatHandler :
     if (texts.isEmpty() || texts.size > 1) return false
     val msg = texts.first().contentToString()
     // check if should repeat
-    if (checkLastMsg(msg)) {
+    if (checkLastMsg(event.group.id, msg)) {
       log("followed by other members")
       event.subject.sendMessage(if (checkProb(PROB_DETER_FOLLOW)) chaosString(msg) else msg)
       return true
@@ -46,7 +46,7 @@ object RandomRepeatHandler :
   }
 
   override fun reset() {
-    lastMessage = ""
+    lastMessage.clear()
   }
 
   /**
@@ -91,13 +91,13 @@ object RandomRepeatHandler :
    * @param message the current message.
    * @return `true` if same.
    */
-  private fun checkLastMsg(message: String): Boolean {
-    if (message == lastMessage) {
+  private fun checkLastMsg(groupId: Long, message: String): Boolean {
+    if (lastMessage.get(groupId)?.let { message == it } ?: false) {
       // prevent further repetition
-      lastMessage = ""
+      lastMessage.remove(groupId)
       return true
     } else {
-      lastMessage = message
+      lastMessage.put(groupId, message)
       return false
     }
   }
