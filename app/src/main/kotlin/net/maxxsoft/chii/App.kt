@@ -26,11 +26,7 @@ private object Main : App {
           // check if is watched group
           if (group.id in Config.watchedGroups) {
             // handle with message handlers
-            if (Config.enableAllHandlers) {
-              MessageHandler.handleAll(this)
-            } else {
-              MessageHandler.handleSome(this, Config.enabledHandlers)
-            }
+            MessageHandler.handle(this)
           }
         }
         // poll logs
