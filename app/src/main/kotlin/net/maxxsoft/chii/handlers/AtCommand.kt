@@ -28,6 +28,7 @@ object AtCommandHandler :
       mapOf(
           "help" to CommandInfo("/help", "查看帮助信息", false, ::handleHelp),
           "reload" to CommandInfo("/reload", "重新载入设置", true, ::handleReload),
+          "rule" to CommandInfo("/rule", "禁言游戏规则", false, ::handleRule),
       )
 
   override suspend fun handle(event: GroupMessageEvent): Boolean {
@@ -70,5 +71,10 @@ object AtCommandHandler :
   private suspend fun handleReload(event: GroupMessageEvent, args: List<String>) {
     Config.reload()
     event.subject.sendMessage(event.message.quote() + "设置已重新载入")
+  }
+
+  @Suppress("UNUSED_PARAMETER")
+  private suspend fun handleRule(event: GroupMessageEvent, args: List<String>) {
+    event.subject.sendMessage(event.message.quote() + MuteGameHandler.getRuleMessage())
   }
 }
