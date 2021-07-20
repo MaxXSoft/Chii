@@ -55,6 +55,7 @@ object Config {
   private val INSTANCES: List<MessageHandler> =
       listOf(
           AtCommandHandler,
+          MuteGameHandler,
           NoPornHandler,
           PenggenHandler,
           RandomRepeatHandler,
