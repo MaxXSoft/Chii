@@ -6,6 +6,7 @@ import java.time.temporal.ChronoUnit
 import kotlin.arrayOf
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import net.maxxsoft.chii.handlers.*
 
 /** Configuration of Chii. */
 @Serializable
@@ -14,7 +15,7 @@ private data class Configuration(
     val password: String,
     val watchedGroups: Array<Long>,
     val enableAllHandlers: Boolean,
-    val enabledHandlers: Set<String>,
+    val enabledHandlers: Array<String>,
     val masterId: Long,
 ) {
   companion object {
@@ -35,7 +36,7 @@ private data class Configuration(
                   getInput("password"),
                   arrayOf(),
                   true,
-                  setOf(),
+                  arrayOf(),
                   getInput("id of master").toLong()
               )
           // save changes
@@ -50,6 +51,15 @@ private data class Configuration(
 
 /** Global config. */
 object Config {
+  // all instances of `MessageHandler`
+  private val INSTANCES: List<MessageHandler> =
+      listOf(
+          AtCommandHandler,
+          NoPornHandler,
+          PenggenHandler,
+          RandomRepeatHandler,
+      )
+
   private var startTime = LocalDateTime.now()
 
   /** Configurations from file. */
@@ -59,9 +69,7 @@ object Config {
     private set
   var watchedGroups: Array<Long> = arrayOf()
     private set
-  var enableAllHandlers: Boolean = true
-    private set
-  var enabledHandlers: Set<String> = setOf()
+  var enabledHandlers: List<MessageHandler> = listOf()
     private set
   var masterId: Long = 0L
     private set
@@ -76,8 +84,9 @@ object Config {
     account = conf.account
     password = conf.password
     watchedGroups = conf.watchedGroups
-    enableAllHandlers = conf.enableAllHandlers
-    enabledHandlers = conf.enabledHandlers
+    enabledHandlers =
+        if (conf.enableAllHandlers) INSTANCES
+        else INSTANCES.associateBy { it.id }.let { m -> conf.enabledHandlers.map { m[it]!! } }
     masterId = conf.masterId
   }
 
