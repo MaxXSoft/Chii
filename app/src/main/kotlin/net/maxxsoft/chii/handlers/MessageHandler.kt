@@ -2,6 +2,7 @@ package net.maxxsoft.chii.handlers
 
 import kotlinx.coroutines.channels.Channel
 import net.mamoe.mirai.event.events.GroupMessageEvent
+import net.maxxsoft.chii.utils.Config
 import org.slf4j.LoggerFactory
 
 abstract class MessageHandler(val id: String, val description: String) {
@@ -11,47 +12,21 @@ abstract class MessageHandler(val id: String, val description: String) {
     @Suppress("JAVA_CLASS_ON_COMPANION")
     private val logger = LoggerFactory.getLogger(javaClass.enclosingClass)
 
-    // Channel of logger.
+    // channel of logger
     private val loggerChannel = Channel<String>()
 
-    // all instances of `MessageHandler`
-    private val INSTANCES =
-        listOf(
-            AtCommandHandler,
-            NoPornHandler,
-            PenggenHandler,
-            RandomRepeatHandler,
-        )
-            .map { Pair(it.id, it) }
-
     /**
-     * Handle by using all instances.
+     * Handle the group message event.
      *
      * @param event group message event.
      */
-    suspend fun handleAll(event: GroupMessageEvent) {
+    suspend fun handle(event: GroupMessageEvent) {
       var resetFlag = false
-      INSTANCES.forEach { (_, v) ->
+      Config.enabledHandlers.forEach {
         if (!resetFlag) {
-          if (v.handle(event)) resetFlag = true
+          if (it.handle(event)) resetFlag = true
         } else {
-          v.reset()
-        }
-      }
-    }
-
-    /**
-     * Handle by using some specific instances.
-     *
-     * @param event group message event.
-     */
-    suspend fun handleSome(event: GroupMessageEvent, ids: Set<String>) {
-      var resetFlag = false
-      INSTANCES.forEach { (k, v) ->
-        if (!resetFlag) {
-          if (k in ids && v.handle(event)) resetFlag = true
-        } else {
-          v.reset()
+          it.reset()
         }
       }
     }
@@ -74,13 +49,10 @@ abstract class MessageHandler(val id: String, val description: String) {
      *
      * @return help message (`String`)
      */
-    fun getHelpMessage(
-        getAll: Boolean = true,
-        enabledHandlers: Set<String> = setOf(),
-        linePrefix: String = ""
-    ) =
-        (if (getAll) INSTANCES else INSTANCES.filter { (_, v) -> v.id in enabledHandlers })
-            .joinToString(separator = "\n") { (_, v) -> "$linePrefix${v.id}: ${v.description}" }
+    fun getHelpMessage(linePrefix: String = "") =
+        Config.enabledHandlers.joinToString(separator = "\n") {
+          "$linePrefix${it.id}: ${it.description}"
+        }
   }
 
   /**
