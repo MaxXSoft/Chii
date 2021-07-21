@@ -208,7 +208,7 @@ object MuteGameHandler :
 
   /** Parse string to integer (supports chinese characters). */
   private suspend fun parseInt(str: String): Int? {
-    val CHAR_MAP = listOf("一", "二", "三", "四", "五", "六", "七", "八", "九", "十").zip(1..10).toMap()
+    val CHAR_MAP = listOf("一", "两", "三", "四", "五", "六", "七", "八", "九", "十").zip(1..10).toMap()
     return str.toIntOrNull() ?: CHAR_MAP[str]
   }
 
