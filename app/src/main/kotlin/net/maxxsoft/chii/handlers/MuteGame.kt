@@ -73,7 +73,7 @@ object MuteGameHandler :
     when (muteMember(member, command.durationMins)) {
       MuteResult.SUCCEEDED -> {
         val probStr = "$prob%"
-        val diceFrac = (dice % 100).toString().padStart(4, '0')
+        val diceFrac = (dice % 100).toString().padStart(2, '0')
         val diceStr = "${dice / 100}.$diceFrac"
         val result = if (succ) "${command.keyword}上了" else "你自己${command.keyword}上吧"
         event.subject.sendMessage(
