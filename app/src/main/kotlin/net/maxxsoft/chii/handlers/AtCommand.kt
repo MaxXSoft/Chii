@@ -28,8 +28,13 @@ object AtCommandHandler :
       mapOf(
           "help" to CommandInfo("/help", "查看帮助信息", false, ::handleHelp),
           "reload" to CommandInfo("/reload", "重新载入设置", true, ::handleReload),
+          "shutdown" to CommandInfo("/shutdown", "关闭bot", true, ::handleShutdown),
           "rule" to CommandInfo("/rule", "禁言游戏规则", false, ::handleRule),
       )
+
+  /** Shutdown flag. */
+  var shutdown: Boolean = false
+    private set
 
   override suspend fun handle(event: GroupMessageEvent): Boolean {
     // check if there is someone ated the bot
@@ -71,6 +76,12 @@ object AtCommandHandler :
   private suspend fun handleReload(event: GroupMessageEvent, args: List<String>) {
     Config.reload()
     event.subject.sendMessage(event.message.quote() + "设置已重新载入")
+  }
+
+  @Suppress("UNUSED_PARAMETER")
+  private suspend fun handleShutdown(event: GroupMessageEvent, args: List<String>) {
+    shutdown = true
+    event.subject.sendMessage(event.message.quote() + "白了个白")
   }
 
   @Suppress("UNUSED_PARAMETER")
