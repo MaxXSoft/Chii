@@ -16,10 +16,14 @@ object PenggenHandler :
         "penggen",
         "半自动捧哏，全人工智障，at Chii 并说话时发动。没有任何AI的成分，纯靠统计和概率",
     ) {
+  /** Data of Penggen text. */
   private val DATA =
       Json.decodeFromString<List<PenggenData>>(
           this::class.java.getResource("/penggen.json").readText()
       )
+  
+  /** Chinese punctuations. */
+  private val PUNCS = "，。！？…～"
 
   /** Probability of ignoring the item's probability. */
   private val PROB_IGNORE = 0.5
@@ -39,7 +43,9 @@ object PenggenHandler :
   private fun getPenggenText(): String {
     val data = pickFromRandomly(DATA) { it.prob }
     val txtObj = pickFromRandomly(data.txts) { it.prob }
-    return txtObj.txt.random()
+    // insert punctuations
+    val txt = txtObj.txt.random().replace("\\s+".toRegex(), PUNCS.random().toString())
+    return txt + PUNCS.takeLast(PUNCS.length - 1).random()
   }
 
   /**
