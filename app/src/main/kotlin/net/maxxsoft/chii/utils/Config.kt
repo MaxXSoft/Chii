@@ -13,7 +13,7 @@ import net.maxxsoft.chii.handlers.*
 private data class Configuration(
     val account: Long,
     val password: String,
-    val watchedGroups: Array<Long>,
+    val watchedGroups: Set<Long>,
     val enableAllHandlers: Boolean,
     val enabledHandlers: Array<String>,
     val masterId: Long,
@@ -34,7 +34,7 @@ private data class Configuration(
               Configuration(
                   getInput("account").toLong(),
                   getInput("password"),
-                  arrayOf(),
+                  setOf(),
                   true,
                   arrayOf(),
                   getInput("id of master").toLong()
@@ -68,7 +68,7 @@ object Config {
     private set
   var password: String = ""
     private set
-  var watchedGroups: Array<Long> = arrayOf()
+  var watchedGroups: Set<Long> = setOf()
     private set
   var enabledHandlers: List<MessageHandler> = listOf()
     private set
