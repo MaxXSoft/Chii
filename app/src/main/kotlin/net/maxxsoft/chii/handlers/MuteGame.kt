@@ -73,7 +73,8 @@ object MuteGameHandler :
     when (muteMember(member, command.durationMins)) {
       MuteResult.SUCCEEDED -> {
         val probStr = "$prob%"
-        val diceStr = "${dice / 100}.${dice % 100}"
+        val diceFrac = (dice % 100).toString().padStart(4, '0')
+        val diceStr = "${dice / 100}.$diceFrac"
         val result = if (succ) "${command.keyword}上了" else "你自己${command.keyword}上吧"
         event.subject.sendMessage(
             event.sender.at() +
@@ -117,7 +118,7 @@ object MuteGameHandler :
               val rest = txt.substring(index + 1).trim()
               val indexMin = rest.indexOf("分钟")
               if (indexMin > 0) {
-                durationMins = rest.substring(0, indexMin).trim().toIntOrNull() ?: return null
+                durationMins = parseInt(rest.substring(0, indexMin).trim()) ?: return null
                 if (durationMins < 1 || durationMins > 10) return null
               } else if (!rest.isEmpty()) {
                 return null
@@ -172,12 +173,23 @@ object MuteGameHandler :
       member.mute(durationSecs)
     } catch (_: PermissionDeniedException) {
       // permission denied, try to mute manually
-      val prev =
-          mutedIds.put(
-              Pair(member.group.id, member.id),
-              Pair(durationSecs, LocalDateTime.now()),
-          )
-      return if (prev == null) MuteResult.SUCCEEDED else MuteResult.MUTED
+      val curPair = Pair(member.group.id, member.id)
+      val curInfo = Pair(durationSecs, LocalDateTime.now())
+      val prev = mutedIds[curPair]
+      // check if the mute record not found
+      if (prev == null) {
+        mutedIds[curPair] = curInfo
+        return MuteResult.SUCCEEDED
+      }
+      // mute record found, get lasting time in seconds
+      val lastingSecs = ChronoUnit.SECONDS.between(prev.second, curInfo.second)
+      // check if time exceeded
+      if (lastingSecs >= prev.first) {
+        mutedIds[curPair] = curInfo
+        return MuteResult.SUCCEEDED
+      }
+      // the member has still been muted
+      return MuteResult.MUTED
     } catch (e: Exception) {
       // failed
       log("failed to mute, ${e.message}")
@@ -191,7 +203,13 @@ object MuteGameHandler :
   /** Send the message "`member` has already been muted" */
   private suspend fun sendMuteMsg(member: Member, remainingSecs: Int) {
     val remainingMsg = if (remainingSecs > 60) "${remainingSecs / 60}分钟" else "${remainingSecs}秒"
-    member.group.sendMessage(member.at() + "已被👴禁言（剩余$remainingMsg）")
+    member.group.sendMessage(member.at() + "你已被👴禁言（剩余$remainingMsg）")
+  }
+
+  /** Parse string to integer (supports chinese characters). */
+  private suspend fun parseInt(str: String): Int? {
+    val CHAR_MAP = listOf("一", "二", "三", "四", "五", "六", "七", "八", "九", "十").zip(1..10).toMap()
+    return str.toIntOrNull() ?: CHAR_MAP[str]
   }
 
   /** Get help message for the game rule. */
