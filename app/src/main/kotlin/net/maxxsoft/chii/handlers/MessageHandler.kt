@@ -50,9 +50,9 @@ abstract class MessageHandler(val id: String, val description: String) {
      * @return help message (`String`)
      */
     fun getHelpMessage(linePrefix: String = "") =
-        Config.enabledHandlers.joinToString(separator = "\n") {
-          "$linePrefix${it.id}: ${it.description}"
-        }
+      Config.enabledHandlers.joinToString(separator = "\n") {
+        "$linePrefix${it.id}: ${it.description}"
+      }
   }
 
   /**

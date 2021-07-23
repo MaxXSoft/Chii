@@ -1,6 +1,5 @@
 package net.maxxsoft.chii.handlers
 
-import kotlin.text.trim
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.message.data.At
 import net.mamoe.mirai.message.data.MessageSource.Key.quote
@@ -10,34 +9,34 @@ import net.maxxsoft.chii.utils.Config
 
 /** At-command parser. */
 object AtCommandHandler :
-    MessageHandler(
-        "at-command",
-        "处理斜杠命令。你可以 at Chii，然后发送斜杠开头的命令。输入“/help”获取帮助",
-    ) {
+  MessageHandler(
+    "at-command",
+    "处理斜杠命令。你可以 at Chii，然后发送斜杠开头的命令。输入“/help”获取帮助",
+  ) {
 
   /** Information of command. */
   private data class CommandInfo(
-      val abbr: String,
-      val help: String,
-      val privileged: Boolean,
-      val handler: suspend (GroupMessageEvent, List<String>) -> Unit,
+    val abbr: String,
+    val help: String,
+    val privileged: Boolean,
+    val handler: suspend (GroupMessageEvent, List<String>) -> Unit,
   )
 
   // all command line handlers
   private val commandHandlers =
-      mapOf(
-          "help" to CommandInfo("/help", "查看帮助信息", false, ::handleHelp),
-          "reload" to CommandInfo("/reload", "重新载入设置", true, ::handleReload),
-          "shutdown" to CommandInfo("/shutdown", "关闭bot", true, ::handleShutdown),
-          "rule" to CommandInfo("/rule", "禁言游戏规则", false, ::handleRule),
-      )
+    mapOf(
+      "help" to CommandInfo("/help", "查看帮助信息", false, ::handleHelp),
+      "reload" to CommandInfo("/reload", "重新载入设置", true, ::handleReload),
+      "shutdown" to CommandInfo("/shutdown", "关闭bot", true, ::handleShutdown),
+      "rule" to CommandInfo("/rule", "禁言游戏规则", false, ::handleRule),
+    )
 
   /** Shutdown flag. */
   var shutdown: Boolean = false
     private set
 
   override suspend fun handle(event: GroupMessageEvent): Boolean {
-    // check if there is someone ated the bot
+    // check if there is someone at-ed the bot
     val atMessage = event.message.findIsInstance<At>()
     if (atMessage == null || atMessage.contentToString().indexOf("@${Config.account}") != 0) {
       return false
@@ -64,10 +63,10 @@ object AtCommandHandler :
     val status = "已运行${Config.getRunningTime()}"
     val linePrefix = "  🔘"
     val commandHelp =
-        commandHandlers
-            .map { (_, v) -> "$linePrefix${v.abbr}: ${v.help}" }
-            .joinToString(separator = "\n")
-    val msgHelp = MessageHandler.getHelpMessage(linePrefix)
+      commandHandlers
+        .map { (_, v) -> "$linePrefix${v.abbr}: ${v.help}" }
+        .joinToString(separator = "\n")
+    val msgHelp = getHelpMessage(linePrefix)
     val msg = "${master}${status}\n\n🚩命令说明: \n$commandHelp\n\n💬已启用的消息处理器: \n$msgHelp"
     event.subject.sendMessage(event.message.quote() + msg)
   }

@@ -1,10 +1,6 @@
 package net.maxxsoft.chii
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.yield
+import kotlinx.coroutines.*
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.event.events.GroupMessageEvent
@@ -24,27 +20,26 @@ private object Main : App {
   // all coroutines
   private val jobs = ArrayList<Job>()
 
-  override fun run() =
-      runBlocking<Unit> {
-        // update start time
-        Config.updateStartTime()
-        // create bot & login
-        val bot = BotFactory.newBot(Config.account, Config.password) { fileBasedDeviceInfo() }
-        bots.add(bot)
-        bot.login()
-        // listen on group message event
-        bot.eventChannel.subscribeAlways<GroupMessageEvent> {
-          // check if is watched group
-          if (group.id in Config.watchedGroups) {
-            // handle with message handlers
-            MessageHandler.handle(this)
-          }
-        }
-        // poll logs
-        jobs.add(launch(Dispatchers.IO) { MessageHandler.pollLogger() })
-        // detect shutdown command
-        jobs.add(launch { detectShutdown() })
+  override fun run() = runBlocking<Unit> {
+    // update start time
+    Config.updateStartTime()
+    // create bot & login
+    val bot = BotFactory.newBot(Config.account, Config.password) { fileBasedDeviceInfo() }
+    bots.add(bot)
+    bot.login()
+    // listen on group message event
+    bot.eventChannel.subscribeAlways<GroupMessageEvent> {
+      // check if is watched group
+      if (group.id in Config.watchedGroups) {
+        // handle with message handlers
+        MessageHandler.handle(this)
       }
+    }
+    // poll logs
+    jobs.add(launch(Dispatchers.IO) { MessageHandler.pollLogger() })
+    // detect shutdown command
+    jobs.add(launch { detectShutdown() })
+  }
 
   override fun quit() {
     // cancel all coroutines
